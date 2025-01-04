@@ -25,6 +25,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
+      fullName TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -66,7 +67,7 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     db.run(
-      'INSERT INTO users (username, fullname, email, password) VALUES (?, ?, ?)',
+      'INSERT INTO users (username, fullname, email, password) VALUES (?, ?, ?, ?)',
       [username, fullName, email, hashedPassword],
       function(err) {
         if (err) {
@@ -93,7 +94,7 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !fullName || !password) {
+  if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
