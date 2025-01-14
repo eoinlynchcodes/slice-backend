@@ -13,6 +13,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// // OR more restrictive setup: Allow specific origin
+// app.use(
+//   cors({
+//     origin: 'http://localhost:3000', // Your front-end's URL
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+//     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+//   })
+// );
+
 // Database setup
 const db = new sqlite3.Database('./database.sqlite', (err) => {
   if (err) {
@@ -31,20 +40,20 @@ db.serialize(() => {
       fullName TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
   db.run(`
     CREATE TABLE IF NOT EXISTS links (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
+      userId INTEGER NOT NULL,
       title TEXT NOT NULL,
       link TEXT NOT NULL,
       category TEXT NOT NULL,
       description TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id)
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (userId) REFERENCES users(id)
     )
   `);
 });
@@ -66,10 +75,6 @@ export const authenticateToken = (req, res, next) => {
     next();
   });
 };
-
-// app.get('/api/test', (req, res) => {
-//   res.send('Yes Eoin, I work');
-// });
 
 app.use('/api/users', userRoutes(db));
 app.use('/api/links', linkRoutes(db));
